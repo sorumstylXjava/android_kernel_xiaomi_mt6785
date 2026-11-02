@@ -31,6 +31,8 @@
 *.lzo
 *.mod.c
 *.o
+*.rej
+*.orig
 *.o.*
 *.order
 *.patch
@@ -131,3 +133,5 @@ all.config
 
 # Kdevelop4
 *.kdev4
+AnyKernel3/*
+AnyKernel3/

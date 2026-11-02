@@ -1169,6 +1169,9 @@ struct task_struct {
 	 */
 	unsigned long rseq_event_mask;
 #endif
+#ifdef CONFIG_ANDROID_SIMPLE_LMK
+	struct task_struct		*simple_lmk_next;
+#endif
 
 	struct tlbflush_unmap_batch	tlb_ubc;
 
