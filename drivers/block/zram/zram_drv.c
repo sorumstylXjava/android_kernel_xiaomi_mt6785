@@ -42,7 +42,7 @@ static DEFINE_MUTEX(zram_index_mutex);
 
 static int zram_major;
 static const char *default_comp_algs[ZRAM_MAX_ZCOMPS] = {
-	"lzo",
+	"lz4",
 #ifdef CONFIG_ZRAM_MULTI_COMP
 	CONFIG_ZRAM_DEF_RECOMP,
 #endif

@@ -35,6 +35,7 @@ KERNEL_NAME="GhostKernel"
 CORES=$(nproc --all)
 
 OUT_DIR="${KERNEL_DIR}/out"
+OUTPUT_DIR="${KERNEL_DIR}/output"
 AK3_DIR="${KERNEL_DIR}/AnyKernel3"
 AK3_REPO="https://github.com/sorumstylXjava/AnyKernel"
 AK3_BRANCH="rosemary"
@@ -121,7 +122,7 @@ cd "${KERNEL_DIR}"
 # ============================================================
 if [ "${DO_CLEAN}" -eq 1 ]; then
     log "Cleaning build outputs..."
-    rm -rf "${OUT_DIR}" "${AK3_DIR}" "${KERNEL_DIR}"/GhostKernel-*.zip
+    rm -rf "${OUT_DIR}" "${AK3_DIR}" "${OUTPUT_DIR}" "${KERNEL_DIR}"/GhostKernel-*.zip
     ok "Clean finished."
     exit 0
 fi
@@ -149,6 +150,8 @@ MAKE_ARGS=(
 )
 
 mkdir -p "${OUT_DIR}"
+# Clean accidental in-tree generated files to prevent out-of-tree shadowing
+rm -rf "${KERNEL_DIR}/arch/arm64/include/generated" "${KERNEL_DIR}/include/generated" "${KERNEL_DIR}/include/config"
 
 if [ "${DO_MENUCONFIG}" -eq 1 ]; then
     log "Opening menuconfig..."
@@ -214,6 +217,7 @@ fi
 
 # Update AK3 settings for GhostKernel (Android 15-17 support)
 sed -i 's/^kernel\.string=.*/kernel.string=GhostKernel | ROSEMARY/' "${AK3_DIR}/anykernel.sh"
+sed -i 's|/dev/block/bootdevice/by-name/boot|/dev/block/by-name/boot|' "${AK3_DIR}/anykernel.sh"
 if grep -q '^supported\.versions=' "${AK3_DIR}/anykernel.sh"; then
     sed -i 's/^supported\.versions=.*/supported.versions=15-17/' "${AK3_DIR}/anykernel.sh"
 else
@@ -224,10 +228,11 @@ fi
 mkdir -p "${AK3_DIR}/kernels"
 cp "${IMAGE}" "${AK3_DIR}/kernels/Image.gz-dtb"
 
-# Create zip file
+# Create zip file in dedicated output directory
+mkdir -p "${OUTPUT_DIR}"
 DATE_TAG=$(date +"%Y%m%d-%H%M")
 ZIP_NAME="${KERNEL_NAME}-Rosemary-${DATE_TAG}.zip"
-ZIP_PATH="${KERNEL_DIR}/${ZIP_NAME}"
+ZIP_PATH="${OUTPUT_DIR}/${ZIP_NAME}"
 
 cd "${AK3_DIR}"
 zip -r9 "${ZIP_PATH}" . -x '*.git*' -x 'LICENSE' -x 'README.md' > /dev/null
@@ -242,7 +247,7 @@ echo -e "\n${GREEN}${BOLD}══════════════════
 echo -e "${GREEN}${BOLD}             GhostKernel Build Successful!                  ${NC}"
 echo -e "${GREEN}${BOLD}════════════════════════════════════════════════════════════${NC}"
 echo -e "  ${BOLD}Zip File${NC}    : ${CYAN}${ZIP_NAME}${NC}"
-echo -e "  ${BOLD}Path${NC}        : ${KERNEL_DIR}/${ZIP_NAME}"
+echo -e "  ${BOLD}Path${NC}        : ${OUTPUT_DIR}/${ZIP_NAME}"
 echo -e "  ${BOLD}Zip Size${NC}    : ${YELLOW}${ZIP_SIZE}${NC}"
 echo -e "  ${BOLD}Build Time${NC}  : ${GREEN}${MINUTES}m ${SECONDS}s${NC}"
 echo -e "  ${BOLD}Root${NC}        : ${MAGENTA}BakaSU (KernelSU Manual Hook)${NC}"
