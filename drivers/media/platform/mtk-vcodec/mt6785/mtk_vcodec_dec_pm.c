@@ -547,30 +547,23 @@ void mtk_unprepare_vdec_emi_bw(void)
 void mtk_vdec_dvfs_begin(struct mtk_vcodec_ctx *ctx)
 {
 #ifdef DEC_DVFS
-	int target_freq = 0;
 	u64 target_freq_64 = 0;
 	struct codec_job *vdec_cur_job = 0;
 
 	mutex_lock(&ctx->dev->dec_dvfs_mutex);
 	vdec_cur_job = move_job_to_head(&ctx->id, &vdec_jobs);
-	if (vdec_cur_job != 0) {
+	if (vdec_cur_job != 0)
 		vdec_cur_job->start = get_time_us();
-		target_freq = est_freq(vdec_cur_job->handle, &vdec_jobs,
-					vdec_hists);
-		target_freq_64 = match_freq(target_freq, &vdec_freq_steps[0],
+
+	/* GhostKernel: Always run VDEC at maximum hardware frequency (624 MHz)
+	 * during active decoding to prevent buffer pool exhaustion, MDP task queue
+	 * buildup, and intermittent video freezing across short-video and status playback.
+	 */
+	target_freq_64 = match_freq(DEFAULT_MHZ, &vdec_freq_steps[0],
 					vdec_freq_step_size);
-		if (target_freq > 0) {
-			vdec_freq = target_freq;
-			if (vdec_freq > target_freq_64)
-				vdec_freq = target_freq_64;
-			vdec_cur_job->mhz = (int)target_freq_64;
-			mtk_pm_qos_update_request(&vdec_qos_req_f, target_freq_64);
-		}
-	} else {
-		target_freq_64 = match_freq(DEFAULT_MHZ, &vdec_freq_steps[0],
-						vdec_freq_step_size);
-		mtk_pm_qos_update_request(&vdec_qos_req_f, target_freq_64);
-	}
+	if (vdec_cur_job != 0)
+		vdec_cur_job->mhz = (int)target_freq_64;
+	mtk_pm_qos_update_request(&vdec_qos_req_f, target_freq_64);
 	mutex_unlock(&ctx->dev->dec_dvfs_mutex);
 #endif
 }
@@ -584,16 +577,15 @@ void mtk_vdec_dvfs_end(struct mtk_vcodec_ctx *ctx)
 	/* vdec dvfs */
 	mutex_lock(&ctx->dev->dec_dvfs_mutex);
 	vdec_cur_job = vdec_jobs;
-	if (vdec_cur_job->handle == &ctx->id) {
+	if (vdec_cur_job && vdec_cur_job->handle == &ctx->id) {
 		vdec_cur_job->end = get_time_us();
 		update_hist(vdec_cur_job, &vdec_hists, 0);
 		vdec_jobs = vdec_jobs->next;
 		kfree(vdec_cur_job);
-	} else {
-		/* print error log */
 	}
 
-	freq_idx = (vdec_freq_step_size == 0) ? 0 : (vdec_freq_step_size - 1);
+	/* GhostKernel: Keep VDEC primed at top frequency for next frame arrival */
+	freq_idx = 0;
 	mtk_pm_qos_update_request(&vdec_qos_req_f, vdec_freq_steps[freq_idx]);
 	mutex_unlock(&ctx->dev->dec_dvfs_mutex);
 #endif
