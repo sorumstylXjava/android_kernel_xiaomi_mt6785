@@ -199,7 +199,7 @@ static bool g_buck_on;
 static bool g_keep_opp_freq_state;
 static bool g_fixed_freq_volt_state;
 static bool g_pbm_limited_ignore_state;
-static bool g_thermal_protect_limited_ignore_state;
+static bool g_thermal_protect_limited_ignore_state = true; /* GhostKernel: Ignore GPU thermal throttling for smooth gaming */
 static unsigned int g_opp_stress_test_state;
 static unsigned int g_efuse_id;
 static unsigned int g_segment_id;
