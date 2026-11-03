@@ -54,23 +54,9 @@ static int mtk_cl_gpu_get_max_state
 static int mtk_cl_gpu_set_cur_state
 (struct thermal_cooling_device *cdev, unsigned long state)
 {
-	if (mtk_gpu_power != NULL && state >= 0 && state < Num_of_GPU_OPP - gpu_max_opp) {
-		g_gpu_level = state;
-		if (g_gpu_level == 0)
-			mtk_cooler_gpu_dprintk("%d\n", g_gpu_level);
-		else {
-			mtk_cooler_gpu_dprintk("%d %d %d\n", g_gpu_level,
-				mtk_gpu_power[g_gpu_level + gpu_max_opp].gpufreq_khz,
-				mtk_gpu_power[g_gpu_level + gpu_max_opp].gpufreq_power);
-		}
-
-		mt_gpufreq_thermal_protect((g_gpu_level == 0) ? 0 :
-			mtk_gpu_power[g_gpu_level + gpu_max_opp].gpufreq_power);
-	} else {
-		mtk_cooler_gpu_dprintk("%s: mtk_gpu_power_table=%p, state=%lu, GPU_OPP=%d\n",
-			__func__, mtk_gpu_power, state, Num_of_GPU_OPP - gpu_max_opp);
-	}
-
+	/* GhostKernel: Force GPU thermal protect level to 0 (unrestricted maximum GPU frequency) */
+	g_gpu_level = 0;
+	mt_gpufreq_thermal_protect(0);
 	return 0;
 }
 

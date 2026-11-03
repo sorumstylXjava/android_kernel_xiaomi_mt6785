@@ -58,7 +58,7 @@ export CROSS_COMPILE="aarch64-linux-gnu-"
 export CROSS_COMPILE_ARM32="arm-linux-gnueabi-"
 export LLVM=1
 export LLVM_IAS=1
-export LOCALVERSION="-${KERNEL_NAME}"
+export LOCALVERSION="-${KERNEL_NAME}-cip136"
 
 # ============================================================
 # HELP / CLI PARSING
@@ -152,6 +152,9 @@ MAKE_ARGS=(
 mkdir -p "${OUT_DIR}"
 # Clean accidental in-tree generated files to prevent out-of-tree shadowing
 rm -rf "${KERNEL_DIR}/arch/arm64/include/generated" "${KERNEL_DIR}/include/generated" "${KERNEL_DIR}/include/config"
+# Ensure clean version string (4.19.325-GhostKernel-cip136) without random git hashes
+touch "${KERNEL_DIR}/.scmversion"
+rm -f "${KERNEL_DIR}/localversion-st" "${KERNEL_DIR}/localversion-cip"
 
 if [ "${DO_MENUCONFIG}" -eq 1 ]; then
     log "Opening menuconfig..."

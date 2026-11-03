@@ -284,7 +284,7 @@ static int dtm_cpu_set_cur_state
 
 	for (i = 0; i < Num_of_OPP; i++) {
 		if (!strcmp(cdev->type, &cooler_name[i * 20])) {
-			cl_dev_state[i] = state;
+			cl_dev_state[i] = 0; /* GhostKernel: Force state 0 (maximum frequency, no throttling) */
 			tscpu_set_power_consumption_state();
 			break;
 		}

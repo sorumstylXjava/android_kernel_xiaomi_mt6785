@@ -348,11 +348,9 @@ struct thermal_cooling_device *cdev, unsigned long *state)
 static int mtk_cl_fps_set_cur_state(
 struct thermal_cooling_device *cdev, unsigned long state)
 {
-	mtk_cooler_fps_dprintk("[%s] %s %lu\n", __func__, cdev->type, state);
-	MTK_CL_FPS_SET_CURR_STATE(state, *((unsigned long *) cdev->devdata));
-
+	/* GhostKernel: Force state 0 (unrestricted 60Hz, no thermal FPS drop) */
+	MTK_CL_FPS_SET_CURR_STATE(0, *((unsigned long *) cdev->devdata));
 	mtk_cl_fps_set_fps_limit();
-
 	return 0;
 }
 
@@ -573,15 +571,9 @@ static void clfps_fps_stats(struct work_struct *work)
 static int adp_fps_set_cur_state(struct thermal_cooling_device *cdev,
 				unsigned long state)
 {
-	int gpu_loading;
-
-	if ((state != 0) && (state != 1)) {
-		mtk_cooler_fps_dprintk(
-				"[%s] invalid input (0: no thro; 1: adp fps thro on)\n",
-				__func__);
-
-		return 0;
-	}
+	/* GhostKernel: Adaptive FPS thermal drop bypassed */
+	return 0;
+}
 
 	mtk_cooler_fps_dprintk("[%s] %s %lu\n", __func__, cdev->type, state);
 	cl_adp_fps_state = state;

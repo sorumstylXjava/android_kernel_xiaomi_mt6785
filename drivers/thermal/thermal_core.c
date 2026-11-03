@@ -342,8 +342,8 @@ static void handle_non_critical_trips(struct thermal_zone_device *tz,
 				      int trip,
 				      enum thermal_trip_type trip_type)
 {
-	tz->governor ? tz->governor->throttle(tz, trip) :
-		       def_governor->throttle(tz, trip);
+	/* GhostKernel: Thermal throttling bypassed for max performance */
+	return;
 }
 
 /**
@@ -947,7 +947,7 @@ thermal_boost_store(struct device *dev,
 				struct device_attribute *attr, const char *buf, size_t len)
 {
        int ret;
-       ret = snprintf(boost_buf, PAGE_SIZE, buf);
+       ret = snprintf(boost_buf, sizeof(boost_buf), "%s", buf);
        return len;
 }
 
@@ -1063,7 +1063,7 @@ static ssize_t
 thermal_board_sensor_temp_store(struct device *dev,
 				struct device_attribute *attr, const char *buf, size_t len)
 {
-       snprintf(board_sensor_temp, PAGE_SIZE, buf);
+       snprintf(board_sensor_temp, sizeof(board_sensor_temp), "%s", buf);
 
        return len;
 }

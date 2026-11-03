@@ -32,32 +32,8 @@ static struct ppm_policy_data thermal_policy = {
 
 void mt_ppm_cpu_thermal_protect(unsigned int limited_power)
 {
-	FUNC_ENTER(FUNC_LV_POLICY);
-
-	ppm_ver("Get budget from thermal => limited_power = %d\n",
-		limited_power);
-
-	ppm_lock(&thermal_policy.lock);
-
-	if (!thermal_policy.is_enabled) {
-		ppm_warn("@%s: thermal policy is not enabled!\n", __func__);
-		ppm_unlock(&thermal_policy.lock);
-		goto end;
-	}
-
-	thermal_policy.req.power_budget = limited_power;
-	thermal_policy.is_activated = (limited_power) ? true : false;
-	ppm_unlock(&thermal_policy.lock);
-
-#ifdef PPM_THERMAL_ENHANCEMENT
-	if (mutex_is_locked(&ppm_main_info.lock))
-		goto end;
-#endif
-
-	mt_ppm_main();
-
-end:
-	FUNC_EXIT(FUNC_LV_POLICY);
+	/* GhostKernel: Thermal CPU power limit bypassed */
+	return;
 }
 
 unsigned int mt_ppm_thermal_get_min_power(void)
