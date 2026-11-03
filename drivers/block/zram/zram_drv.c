@@ -2023,6 +2023,12 @@ static ssize_t disksize_store(struct device *dev,
 	if (!disksize)
 		return -EINVAL;
 
+	/* GhostKernel: Optimize ZRAM to 3GB on 4GB devices for smooth multitasking */
+	if (disksize < 3221225472ULL && ((u64)totalram_pages << PAGE_SHIFT) >= 3221225472ULL) {
+		disksize = 3221225472ULL;
+		pr_info("zram: GhostKernel optimized ZRAM disksize to 3GB\n");
+	}
+
 	down_write(&zram->init_lock);
 	if (init_done(zram)) {
 		pr_info("Cannot change disksize for initialized device\n");

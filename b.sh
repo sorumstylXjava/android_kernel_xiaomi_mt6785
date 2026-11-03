@@ -224,6 +224,11 @@ else
     sed -i '/^device\.name3=.*/a supported.versions=15-17' "${AK3_DIR}/anykernel.sh"
 fi
 
+# Ensure 75% (3GB) ZRAM fstab patch is in anykernel.sh
+if ! grep -q 'zramsize=75%' "${AK3_DIR}/anykernel.sh"; then
+    sed -i '/dump_boot;/a \\n# GhostKernel: Optimize ZRAM size to 75% (3GB) in ramdisk fstabs\nfor fstab in $ramdisk/fstab* $ramdisk/vendor/etc/fstab* $ramdisk/etc/fstab*; do\n\t[ -f "$fstab" ] && sed -i "s/zramsize=50%/zramsize=75%/g" "$fstab";\ndone;\n' "${AK3_DIR}/anykernel.sh"
+fi
+
 # Place compiled kernel image into kernels/
 mkdir -p "${AK3_DIR}/kernels"
 cp "${IMAGE}" "${AK3_DIR}/kernels/Image.gz-dtb"
