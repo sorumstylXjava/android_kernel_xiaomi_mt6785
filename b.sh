@@ -3,7 +3,7 @@
 # GhostKernel Build Script
 # Device : Redmi Note 10S (rosemary / secret / maltose) - MT6785
 # Kernel : Linux 4.19.x CIP/ST
-# Author : Antigravity / GhostKernel Team
+# Author : @Java_nih_deks
 #
 
 set -eo pipefail
@@ -216,15 +216,6 @@ if [ ! -d "${AK3_DIR}/.git" ]; then
     log "Cloning AnyKernel3 (${AK3_BRANCH} branch)..."
     rm -rf "${AK3_DIR}"
     git clone --depth=1 -b "${AK3_BRANCH}" "${AK3_REPO}" "${AK3_DIR}"
-fi
-
-# Update AK3 settings for GhostKernel (Android 15-17 support)
-sed -i 's/^kernel\.string=.*/kernel.string=GhostKernel | ROSEMARY/' "${AK3_DIR}/anykernel.sh"
-sed -i 's|/dev/block/bootdevice/by-name/boot|/dev/block/by-name/boot|' "${AK3_DIR}/anykernel.sh"
-if grep -q '^supported\.versions=' "${AK3_DIR}/anykernel.sh"; then
-    sed -i 's/^supported\.versions=.*/supported.versions=15-17/' "${AK3_DIR}/anykernel.sh"
-else
-    sed -i '/^device\.name3=.*/a supported.versions=15-17' "${AK3_DIR}/anykernel.sh"
 fi
 
 # Place compiled kernel image into kernels/

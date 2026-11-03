@@ -918,8 +918,8 @@ GED_ERROR ged_dvfs_um_commit(unsigned long gpu_tar_freq, bool bFallback)
 }
 
 #ifdef GED_ENABLE_FB_DVFS
-#define DEFAULT_DVFS_MARGIN 200 /* GhostKernel: 20% GPU headroom for 60fps gaming stability */
-#define FIXED_FPS_MARGIN 5 /* Fixed FPS margin: 5fps */
+#define DEFAULT_DVFS_MARGIN 100 /* 10% margin */
+#define FIXED_FPS_MARGIN 3 /* Fixed FPS margin: 3fps */
 
 int gx_fb_dvfs_margin = DEFAULT_DVFS_MARGIN;/* 10-bias */
 

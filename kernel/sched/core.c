@@ -904,21 +904,14 @@ uclamp_eff_get(struct task_struct *p, enum uclamp_id clamp_id)
 unsigned long uclamp_eff_value(struct task_struct *p, enum uclamp_id clamp_id)
 {
 	struct uclamp_se uc_eff;
-	unsigned long val;
 
 	/* Task currently refcounted: use back-annotated (effective) value */
 	if (p->uclamp[clamp_id].active)
-		val = (unsigned long)p->uclamp[clamp_id].value;
-	else {
-		uc_eff = uclamp_eff_get(p, clamp_id);
-		val = (unsigned long)uc_eff.value;
-	}
+		return (unsigned long)p->uclamp[clamp_id].value;
 
-	/* GhostKernel: Guarantee minimum 20% capacity (~1.2GHz+) for foreground UI tasks */
-	if (clamp_id == UCLAMP_MIN && val < 204 && p->signal && p->signal->oom_score_adj <= 0)
-		val = 204;
+	uc_eff = uclamp_eff_get(p, clamp_id);
 
-	return val;
+	return (unsigned long)uc_eff.value;
 }
 
 /*
@@ -1312,11 +1305,7 @@ bool uclamp_latency_sensitive(struct task_struct *p)
 		return false;
 	tg = container_of(css, struct task_group, css);
 
-	/* GhostKernel: Foreground UI tasks and top-app are always latency sensitive */
-	if (tg->latency_sensitive || (p->signal && p->signal->oom_score_adj <= 0))
-		return true;
-
-	return false;
+	return tg->latency_sensitive;
 #else
 	return false;
 #endif
