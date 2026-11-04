@@ -432,6 +432,8 @@ CONFIG_CRYPTO_LZO=y
 
 # --- GhostKernel: Storage ---
 CONFIG_NOMOUNT=y
+CONFIG_CONFIGFS_FS=y
+CONFIG_SDCARD_FS=y
 
 # --- GhostKernel: Timer / HZ ---
 CONFIG_HZ_300=y

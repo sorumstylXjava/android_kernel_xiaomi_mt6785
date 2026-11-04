@@ -74,6 +74,7 @@ static inline int user_path_dir(const char __user *name, struct path *path)
 }
 
 extern int kern_path(const char *, unsigned, struct path *);
+extern int vfs_path_lookup(struct dentry *, struct vfsmount *, const char *, unsigned int, struct path *);
 
 extern struct dentry *kern_path_create(int, const char *, struct path *, unsigned int);
 extern struct dentry *user_path_create(int, const char __user *, struct path *, unsigned int);
